@@ -1,53 +1,87 @@
-import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import { invoke } from '@tauri-apps/api/tauri'
-import './App.css'
+import { useFormik } from 'formik'
 
-function App () {
-  const [greetMsg, setGreetMsg] = useState('')
-  const [name, setName] = useState('')
-  const [naughtyMessage, setNaughtyMessage] = useState('')
+interface CustomerForm {
+  firstName: string
+  lastName: string
+}
 
-  async function greet () {
-    // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    setGreetMsg(await invoke('hello', { name }))
-    setNaughtyMessage(await invoke('poop', { name }))
+const validate = (values: CustomerForm): Record<string, string> => {
+  const errors: Record<string, string> = {}
+
+  if (!values.firstName) {
+    errors.firstName = 'Required'
+  } else if (values.firstName.length > 50) {
+    errors.firstName = 'Must be 50 characters or less'
   }
 
+  if (!values.lastName) {
+    errors.lastName = 'Required'
+  } else if (values.lastName.length > 50) {
+    errors.lastName = 'Must be 50 characters or less'
+  }
+
+  return errors
+}
+
+export default function App() {
+  const formik = useFormik<CustomerForm>({
+    initialValues: {
+      firstName: '',
+      lastName: '',
+    },
+    validate,
+    onSubmit: (values) => {
+      console.log(JSON.stringify(values, null, 2))
+    },
+  })
+
   return (
-    <div className="container">
-      <h1>Welcome to Tauri!</h1>
-
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo"/>
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo"/>
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo"/>
-        </a>
+    <div className="container mx-auto max-w-3xl">
+      <div>
+        <header className={'py-2'}>
+          <h1 className="text-3xl font-bold">New Customer</h1>
+        </header>
+        <form onSubmit={formik.handleSubmit}>
+          <div className="flex space-x-4">
+            <div className="form-control flex-1">
+              <label
+                htmlFor="firstName"
+                className="label"
+              >
+                First Name
+              </label>
+              <input
+                type="text"
+                className="input input-sm input-bordered"
+                id="firstName"
+                onChange={formik.handleChange}
+                value={formik.values.firstName}
+              />
+              {formik.errors.firstName ? (
+                <div>{formik.errors.firstName}</div>
+              ) : null}
+            </div>
+            <div className="form-control flex-1">
+              <label
+                htmlFor="lastName"
+                className="label"
+              >
+                Last Name
+              </label>
+              <input
+                type="text"
+                className="input input-sm input-bordered"
+                id="lastName"
+                onChange={formik.handleChange}
+                value={formik.values.lastName}
+              />
+              {formik.errors.lastName ? (
+                <div>{formik.errors.lastName}</div>
+              ) : null}
+            </div>
+          </div>
+        </form>
       </div>
-
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <div className="row">
-        <div>
-          <input
-            id="greet-input"
-            onChange={(e) => setName(e.currentTarget.value)}
-            placeholder="Enter a name..."
-          />
-          <button type="button" onClick={() => greet()}>
-            Greet
-          </button>
-        </div>
-      </div>
-      <p>{greetMsg}</p>
-      <p>{naughtyMessage}</p>
     </div>
   )
 }
-
-export default App
