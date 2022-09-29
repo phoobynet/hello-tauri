@@ -1,3 +1,4 @@
+import FormControl from './components/FormControl'
 import { useFormik } from 'formik'
 
 interface CustomerForm {
@@ -23,6 +24,12 @@ const validate = (values: CustomerForm): Record<string, string> => {
   return errors
 }
 
+function InputError(props: { error?: string }) {
+  return props.error ? (
+    <div className={'text-sm text-red-400'}>{props.error}</div>
+  ) : null
+}
+
 export default function App() {
   const formik = useFormik<CustomerForm>({
     initialValues: {
@@ -43,42 +50,24 @@ export default function App() {
         </header>
         <form onSubmit={formik.handleSubmit}>
           <div className="flex space-x-4">
-            <div className="form-control flex-1">
-              <label
-                htmlFor="firstName"
-                className="label"
-              >
-                First Name
-              </label>
-              <input
-                type="text"
-                className="input input-sm input-bordered"
-                id="firstName"
-                onChange={formik.handleChange}
-                value={formik.values.firstName}
-              />
-              {formik.errors.firstName ? (
-                <div>{formik.errors.firstName}</div>
-              ) : null}
-            </div>
-            <div className="form-control flex-1">
-              <label
-                htmlFor="lastName"
-                className="label"
-              >
-                Last Name
-              </label>
-              <input
-                type="text"
-                className="input input-sm input-bordered"
-                id="lastName"
-                onChange={formik.handleChange}
-                value={formik.values.lastName}
-              />
-              {formik.errors.lastName ? (
-                <div>{formik.errors.lastName}</div>
-              ) : null}
-            </div>
+            <FormControl
+              label={'First Name'}
+              id={'firstName'}
+              type={'text'}
+              onChange={formik.handleChange}
+              value={formik.values.firstName}
+              error={formik.errors.firstName}
+              className={'flex-1'}
+            />
+            <FormControl
+              label={'Last Name'}
+              id={'lastName'}
+              type={'text'}
+              onChange={formik.handleChange}
+              value={formik.values.lastName}
+              error={formik.errors.lastName}
+              className={'flex-1'}
+            />
           </div>
         </form>
       </div>
