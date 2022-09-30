@@ -2,6 +2,9 @@
     all(not(debug_assertions), target_os = "windows"),
     windows_subsystem = "windows"
 )]
+mod alpaca;
+
+use crate::alpaca::market_data::RawMessage;
 use std::net::TcpStream;
 use tauri::Manager;
 use tungstenite::stream::MaybeTlsStream;
@@ -24,6 +27,7 @@ fn main() {
             let window = app.get_window("main").unwrap();
             #[cfg(debug_assertions)]
             {
+                // TODO: Implement size stuff
                 let _ = &window.open_devtools();
             }
 
@@ -51,6 +55,14 @@ fn main() {
         .invoke_handler(tauri::generate_handler![hello])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+fn convert_to_message(json: &str) -> RawMessage {
+    return RawMessage {
+        message_type: String::from("T"),
+        msg: None,
+        code: None,
+    };
 }
 
 fn authenticate(socket: &mut WebSocket<MaybeTlsStream<TcpStream>>) {
