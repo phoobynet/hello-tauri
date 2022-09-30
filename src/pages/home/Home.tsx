@@ -21,7 +21,13 @@ export default function Home() {
         <h1 className={'text-4xl font-bold tracking-wider'}>Home</h1>
       </header>
       <div>
-        <pre>{JSON.stringify(trade, null, 2)}</pre>
+        <pre
+          style={{
+            fontSize: '0.8rem',
+          }}
+        >
+          {JSON.stringify(trade, null, 2)}
+        </pre>
       </div>
     </div>
   )

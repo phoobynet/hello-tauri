@@ -1,12 +1,14 @@
 #![cfg_attr(
-    all(not(debug_assertions), target_os = "windows"),
-    windows_subsystem = "windows"
+all(not(debug_assertions), target_os = "windows"),
+windows_subsystem = "windows"
 )]
+
 mod alpaca;
 
 use crate::alpaca::market_data::RawMessage;
 use std::net::TcpStream;
-use tauri::Manager;
+use tauri::{Manager, PhysicalPosition, PhysicalSize, Position};
+use tauri::Size::Physical;
 use tungstenite::stream::MaybeTlsStream;
 use tungstenite::{connect, Message, WebSocket};
 use url::Url;
@@ -27,7 +29,24 @@ fn main() {
             let window = app.get_window("main").unwrap();
             #[cfg(debug_assertions)]
             {
-                // TODO: Implement size stuff
+                let monitor_size = match window.primary_monitor().unwrap() {
+                    Some(monitor) => monitor.size().clone(),
+                    None => panic!("Where the monitor at?"),
+                };
+
+                let position = window.inner_position().unwrap();
+
+                let mut app_size = monitor_size.clone();
+                app_size.width = &monitor_size.width / 2;
+                &window.set_size(app_size);
+
+                let mut new_position = position.clone();
+                new_position.x = (&app_size.width / 2) as i32;
+                new_position.y = 20;
+                println!("{:?}", &new_position);
+
+                &window.set_position(new_position);
+
                 let _ = &window.open_devtools();
             }
 
@@ -73,9 +92,9 @@ fn authenticate(socket: &mut WebSocket<MaybeTlsStream<TcpStream>>) {
         "key": "API-KEY",
         "secret": "SECRET-KEY"
     }"#
-    .to_string()
-    .replace("API-KEY", key)
-    .replace("SECRET-KEY", secret);
+        .to_string()
+        .replace("API-KEY", key)
+        .replace("SECRET-KEY", secret);
 
     socket
         .write_message(Message::Text(authenticate_message.into()))
